@@ -212,10 +212,12 @@ class KieferClient(object):
         """Retrieve user settings."""
         return self._get('users/@me/settings')
 
+    ENDPOINT_SLEEPS = 'users/@me/sleeps'
+
     # Sleeps
     def get_sleeps(self, **kwargs):
         """Get list of sleeps."""
-        return self._get('users/@me/sleeps', kwargs)
+        return self._get(KieferClient.ENDPOINT_SLEEPS, kwargs)
 
     def get_sleep(self, xid):
         """
@@ -231,7 +233,7 @@ class KieferClient(object):
 
         :param xid: ``str``, sleep id
         """
-        return self._get('/sleeps/{}/image'.format(xid))
+        return self._get('/sleeps/{}/image'.format(xid), as_json=False)
 
     def get_sleep_phases(self, xid):
         """
@@ -352,11 +354,14 @@ class KieferClient(object):
 
     # Request helper methods
 
-    def _get(self, endpoint, payload=None):
+    def _get(self, endpoint, payload=None, as_json=True):
         req_url = self.BASE_URL + endpoint
         r = requests.get(req_url, headers=self._headers, params=payload)
         validate_response(r, 200, KieferClientError)
-        return r.json()
+        if as_json:
+            return r.json()
+        else:
+            return r
 
     def _post(self, endpoint, payload):
         req_url = self.BASE_URL + endpoint
